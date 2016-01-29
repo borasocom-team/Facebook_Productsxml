@@ -3,13 +3,13 @@
 <config>
     <tabs>
         <otimizar translate="label">
-            <label>e-smart</label>
+            <label>Otimizar</label>
             <sort_order>10</sort_order>
         </otimizar>
     </tabs>
 	<sections>
 		<otimizar_facebookProducts>
-			<label>otimizar Facebook XML</label>
+			<label>Facebook Products Feed XML</label>
 			<tab>otimizar</tab>
 			<frontend_type>text</frontend_type>
 			<sort_order>1000</sort_order>
