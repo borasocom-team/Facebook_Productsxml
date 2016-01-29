@@ -1,0 +1,143 @@
+<?xml version="1.0"?>
+
+<config>
+    <tabs>
+        <otimizar translate="label">
+            <label>e-smart</label>
+            <sort_order>10</sort_order>
+        </otimizar>
+    </tabs>
+	<sections>
+		<otimizar_facebookProducts>
+			<label>otimizar Facebook XML</label>
+			<tab>otimizar</tab>
+			<frontend_type>text</frontend_type>
+			<sort_order>1000</sort_order>
+			<show_in_default>1</show_in_default>
+			<show_in_website>1</show_in_website>
+			<show_in_store>1</show_in_store>
+			<groups>
+				<feed translate="label">
+					<label>XML Template</label>
+					<frontend_type>text</frontend_type>
+					<sort_order>30</sort_order>
+					<show_in_default>1</show_in_default>
+					<show_in_website>1</show_in_website>
+					<show_in_store>1</show_in_store>
+					<fields>
+						<xml_head_content>
+							<label>XML Head</label>
+							<frontend_type>textarea</frontend_type>
+							<sort_order>5</sort_order>
+							<show_in_default>1</show_in_default>
+							<show_in_website>0</show_in_website>
+							<show_in_store>0</show_in_store>
+						</xml_head_content>
+                        <xml_content>
+                            <label>XML Content</label>
+                            <frontend_type>textarea</frontend_type>
+                            <sort_order>6</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment>this content will iterate in products loop</comment>
+                        </xml_content>
+                        <xml_footer_content>
+                            <label>XML Footer</label>
+                            <frontend_type>textarea</frontend_type>
+                            <sort_order>7</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </xml_footer_content>
+
+					</fields>
+				</feed>
+                <export>
+                    <label>Export Options</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>40</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>0</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <fields>
+                        <filename>
+                            <label>Filename</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment>ex: facebook_products.xml</comment>
+                            <tooltip>url: /dressto/smartfeeds/xml or /media/FILE_NAME</tooltip>
+                        </filename>
+                    </fields>
+                </export>
+                <filters translate="label">
+                    <label>Filters</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>30</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>0</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <fields>
+                        <categories>
+                            <label>Categories</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment>ex:8,10 (separated by comma)</comment>
+                        </categories>
+                        <limit>
+                            <label>Limit</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment>collection select limit</comment>
+                        </limit>
+                        <check_is_available>
+                            <label>Check if is available</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>3</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </check_is_available>
+                        <ucfirst>
+                            <label>Force lower letters with first letter uppercase</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>3</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </ucfirst>
+                        <htmlentities>
+                            <label>Use PHP htmlentities</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>3</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </htmlentities>
+                        <json_custom_filter>
+                            <label>Json Custom filter</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>5</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment>* json array to iterative add filter</comment>
+                        </json_custom_filter>
+                    </fields>
+                </filters>
+			</groups>
+		</otimizar_facebookProducts>
+	</sections>
+</config>

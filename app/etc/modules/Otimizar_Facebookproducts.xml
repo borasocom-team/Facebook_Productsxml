@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Otimizar_FacebookProducts>
+            <active>true</active>
+            <codePool>community</codePool>
+        </Otimizar_FacebookProducts>
+    </modules>
+</config>

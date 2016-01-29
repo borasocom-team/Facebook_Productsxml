@@ -1,0 +1,129 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Otimizar_FacebookProducts>
+            <version>0.1.0</version>
+        </Otimizar_FacebookProducts>
+    </modules>
+    <global>
+        <models>
+            <otimizar_facebookproducts>
+                <class>otimizar_FacebookProducts_Model</class>
+                <resourceModel>otimizar_facebookproducts_resource</resourceModel>
+            </otimizar_facebookproducts>
+            <otimizar_facebookproducts_resource>
+                <class>otimizar_FacebookProducts_Model_Resource</class>
+            </otimizar_facebookproducts_resource>
+        </models>                <blocks>
+            <otimizar_facebookproducts>
+                <class>otimizar_FacebookProducts_Block</class>
+            </otimizar_facebookproducts>
+        </blocks>                <helpers>
+            <otimizar_facebookproducts>
+                <class>otimizar_FacebookProducts_Helper</class>
+            </otimizar_facebookproducts>
+        </helpers>                <resources>
+            <otimizar_facebookproducts_setup>
+                <setup>
+                    <module>otimizar_FacebookProducts</module>
+                </setup>
+            </otimizar_facebookproducts_setup>
+        </resources>
+
+
+    </global>
+
+    <frontend>
+        <routers>
+            <otimizar_facebookproducts>
+                <use>standard</use>
+                <args>
+                    <module>otimizar_FacebookProducts</module>
+                    <frontName>smartfeeds</frontName>
+                </args>
+            </otimizar_facebookproducts>
+        </routers>
+    </frontend>
+
+    <crontab>
+        <jobs>
+            <otimizar_facebook_products_feed>
+                <schedule><cron_expr>15 2 * * *</cron_expr></schedule>
+                <run>
+                    <model>otimizar_facebookproducts/cron::generateFeeds</model>
+                </run>
+            </otimizar_facebook_products_feed>
+        </jobs>
+    </crontab>
+    <default>
+        <otimizar_facebookProducts>
+            <general>
+                <enable>1</enable>
+            </general>
+            <export>
+                <filename>facebook_products.xml</filename>
+            </export>
+            <feed>
+                <xml_head_content><![CDATA[<?xml version="1.0"?>
+<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">
+	<channel>
+		<title>Store name</title>
+		<link>http://www.store.com.br</link>
+		<description>store description</description>
+                ]]></xml_head_content>
+                <xml_content><![CDATA[<item>
+<g:id>{{var:entity_id}}</g:id>
+<g:title>{{var:name}}</g:title>
+<g:description>{{var:short_description}}</g:description>
+                <g:link>{{var:productUrl}}</g:link>
+                <g:image_link>{{var:imageCacheUrl}}</g:image_link>
+                <g:condition>new</g:condition>
+                <g:availability>in stock</g:availability>
+                <g:price>{{var:price}} BRL</g:price>
+                <g:sale_price>{{var:specialPrice}} BRL</g:sale_price>
+
+                <g:google_product_category>
+                    Apparel &amp; Accessories &gt; Clothing
+                </g:google_product_category>
+                <g:mpn>{{var:sku}}</g:mpn>
+                <g:brand>Dress To</g:brand>
+                <g:marca>Dress To</g:marca>
+                <g:gender>female</g:gender>
+                <g:age_group>Adult</g:age_group>
+                <g:color>{{var:productColors}}</g:color>
+                <g:size>{{var:productSizes}}</g:size>
+
+                <g:product_type>{{var:categorySubcategory}}</g:product_type>
+</item>
+                ]]></xml_content>
+                <xml_footer_content><![CDATA[</channel>
+</rss>
+                ]]></xml_footer_content>
+            </feed>
+            <filters>
+                <limit>1000</limit>
+            </filters>
+        </otimizar_facebookProducts>
+    </default>
+    <adminhtml>
+        <acl>
+            <resources>
+                <admin>
+                    <children>
+                        <system>
+                            <children>
+                                <config>
+                                    <children>
+                                        <otimizar_facebookProducts>
+                                            <title>Smart</title>
+                                        </otimizar_facebookProducts>
+                                    </children>
+                                </config>
+                            </children>
+                        </system>
+                    </children>
+                </admin>
+            </resources>
+        </acl>
+    </adminhtml>
+</config>
