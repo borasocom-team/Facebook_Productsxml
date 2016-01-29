@@ -87,6 +87,7 @@ class Otimizar_FacebookProducts_Model_Cron {
                 $_productCollection->load();
 
                 foreach($_productCollection as $p){
+                    $p->setStoreId(1);
                     $pEntityId = $p->getData('entity_id');
                     if(!array_key_exists($pEntityId,$products))
                     {
