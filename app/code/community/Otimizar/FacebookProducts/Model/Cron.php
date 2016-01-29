@@ -85,9 +85,10 @@ class Otimizar_FacebookProducts_Model_Cron {
                 $_productCollection->getSelect()->limit($this->collectionLimit);
 
                 $_productCollection->load();
-
+                
+                Mage::app()->setCurrentStore(Mage_Core_Model_App::DISTRO_STORE_ID);
+                
                 foreach($_productCollection as $p){
-                    $p->setStoreId(1);
                     $pEntityId = $p->getData('entity_id');
                     if(!array_key_exists($pEntityId,$products))
                     {
