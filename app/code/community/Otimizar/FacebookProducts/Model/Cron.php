@@ -158,12 +158,12 @@ class Otimizar_FacebookProducts_Model_Cron {
                                     break;
                                 case 'price':
                                     $value = $dataObject->getData($props[0]);
-                                    $value = number_format((double)$value, 2, '.', ',');
+                                    $value = number_format((double)$value, 2, '.', '');
                                     break;
                                 case 'specialPrice':
                                     $value = $dataObject->getData($props[0]);
                                     if($value <= 0 ){$value = $dataObject->getData("price");}
-                                    $value = number_format((double)$value, 2, '.', ',');
+                                    $value = number_format((double)$value, 2, '.', '');
                                     break;
                                 default:
                                     $value = $dataObject->getData($props[0]);
