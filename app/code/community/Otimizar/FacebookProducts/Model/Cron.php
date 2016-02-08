@@ -12,6 +12,8 @@ class Otimizar_FacebookProducts_Model_Cron {
         $collectionLimit,
         $xmlGeneration,
         $products,
+        $check_isinstock,
+        $only_configurable_products,
         $ucfirst;
 
     public function __construct(){
@@ -25,6 +27,9 @@ class Otimizar_FacebookProducts_Model_Cron {
         $this->ucfirst            = (int)Mage::getStoreConfig('facebookProducts/filters/ucfirst');
         $this->htmlentities       = (int)Mage::getStoreConfig('facebookProducts/filters/htmlentities');
         $this->json_custom_filter = json_decode(Mage::getStoreConfig('facebookProducts/filters/json_custom_filter'));
+        $this->check_isinstock    = (int)Mage::getStoreConfig('facebookProducts/filters/check_isinstock');
+        $this->only_configurable_products    = (int)Mage::getStoreConfig('facebookProducts/filters/only_configurable_products');
+
 
         $this->xmlGeneration = Mage::helper('facebookProducts/installments')->makeArrayFieldValue(Mage::getStoreConfig('facebookProducts/xml/generation'));
 
@@ -49,6 +54,7 @@ class Otimizar_FacebookProducts_Model_Cron {
         $countProducts = 0;
         $countRepetidos = 0;
         $this->products = array();
+        $this->collectionLimit = $feed['filter_limit']?(int)$feed['filter_limit']:100000;
         $this->_fileName .= '.tmp';
 
         $this->_putContent($this->xmlHead,'');
@@ -87,19 +93,23 @@ class Otimizar_FacebookProducts_Model_Cron {
                     foreach($this->json_custom_filter as $k => $v){
                         $_productCollection->addAttributeToFilter($k, $v);
                     }
-                }else {
-                    $_productCollection->addAttributeToFilter('status', 1)
-                        ->addAttributeToFilter('type_id', 'configurable')
-                        ->addAttributeToFilter('visibility', 4);
                 }
 
-                $_productCollection->joinField('qty',
-                    'cataloginventory/stock_item',
-                    'qty',
-                    'product_id=entity_id',
-                    '{{table}}.is_in_stock=1',
-                    'inner')
-                ;
+                $_productCollection->addAttributeToFilter('status', 1)
+                    ->addAttributeToFilter('visibility', 4);
+
+                if($this->only_configurable_products){
+                    $_productCollection->addAttributeToFilter('type_id', 'configurable');
+                }
+
+                if($this->check_isinstock) {
+                    $_productCollection->joinField('qty',
+                        'cataloginventory/stock_item',
+                        'qty',
+                        'product_id=entity_id',
+                        '{{table}}.is_in_stock=1',
+                        'inner');
+                }
 
                 $_productCollection->getSelect()->limit($this->collectionLimit);
 
@@ -235,6 +245,8 @@ class Otimizar_FacebookProducts_Model_Cron {
                             if($this->ucfirst) {
                                 $value = ucfirst(strtolower($value));
                             }
+
+                            $value = '<![CDATA['.$value.']]>';
 
                             $content = str_replace($match[0][$var_num], strval($value), $content);
 
