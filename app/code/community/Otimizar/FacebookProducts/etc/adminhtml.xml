@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-
 <config>
     <acl>
         <resources>
@@ -9,9 +8,9 @@
                         <children>
                             <config>
                                 <children>
-                                    <otimizar_facebookProducts>
+                                    <facebookProducts>
 	                                   	<title>Facebook XML</title>
-	                                </otimizar_facebookProducts>
+	                                </facebookProducts>
                                 </children>
                             </config>
                         </children>

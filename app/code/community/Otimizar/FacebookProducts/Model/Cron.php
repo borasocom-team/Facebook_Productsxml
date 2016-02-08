@@ -10,30 +10,50 @@ class Otimizar_FacebookProducts_Model_Cron {
         $checkIfIsAvailable,
         $categories,
         $collectionLimit,
+        $xmlGeneration,
+        $products,
         $ucfirst;
 
     public function __construct(){
-        $this->path = Mage::getBaseDir().DIRECTORY_SEPARATOR.'media'.DIRECTORY_SEPARATOR;
-        $this->_fileName = Mage::getStoreConfig('otimizar_facebookProducts/export/filename');
-        $this->json_custom_filter = json_decode(Mage::getStoreConfig('otimizar_facebookProducts/filters/json_custom_filter'));
-        $this->xmlHead = Mage::getStoreConfig('otimizar_facebookProducts/feed/xml_head_content');
-        $this->xmlContent = Mage::getStoreConfig('otimizar_facebookProducts/feed/xml_content');
-        $this->xmlFooter = Mage::getStoreConfig('otimizar_facebookProducts/feed/xml_footer_content');
-        $this->categories = Mage::getStoreConfig('otimizar_facebookProducts/filters/categories');
-        $this->checkIfIsAvailable = Mage::getStoreConfig('otimizar_facebookProducts/filters/check_is_available');
-        $this->collectionLimit = (int)Mage::getStoreConfig('otimizar_facebookProducts/filters/limit');
-        $this->ucfirst = (int)Mage::getStoreConfig('otimizar_facebookProducts/filters/ucfirst');
-        $this->htmlentities = (int)Mage::getStoreConfig('otimizar_facebookProducts/filters/htmlentities');
+        $this->path               = Mage::getBaseDir().DIRECTORY_SEPARATOR.'media'.DIRECTORY_SEPARATOR;
+
+        $this->xmlHead            = Mage::getStoreConfig('facebookProducts/feed/xml_head_content');
+        $this->xmlContent         = Mage::getStoreConfig('facebookProducts/feed/xml_content');
+        $this->xmlFooter          = Mage::getStoreConfig('facebookProducts/feed/xml_footer_content');
+
+        $this->checkIfIsAvailable = Mage::getStoreConfig('facebookProducts/filters/check_is_available');
+        $this->ucfirst            = (int)Mage::getStoreConfig('facebookProducts/filters/ucfirst');
+        $this->htmlentities       = (int)Mage::getStoreConfig('facebookProducts/filters/htmlentities');
+        $this->json_custom_filter = json_decode(Mage::getStoreConfig('facebookProducts/filters/json_custom_filter'));
+
+        $this->xmlGeneration = Mage::helper('facebookProducts/installments')->makeArrayFieldValue(Mage::getStoreConfig('facebookProducts/xml/generation'));
 
     }
 
-    public function generateFeeds()
+    public function run()
+    {
+        if(!Mage::getStoreConfig("facebookProducts/general/enable")){
+            return;
+        }
+        foreach($this->xmlGeneration as $feed){
+            if(isset($feed['filter_filename'])) {
+                $this->_fileName = trim($feed['filter_filename']);
+                $this->json_custom_filter = trim($feed['filter_jsoncustomfilter']);
+                $this->generateFeeds($feed);
+            }
+        }
+    }
+
+    private function generateFeeds($feed)
     {
         $countProducts = 0;
         $countRepetidos = 0;
-        $products = array();
+        $this->products = array();
+        $this->_fileName .= '.tmp';
 
         $this->_putContent($this->xmlHead,'');
+
+        $this->categories = $feed['filter_categories'];
 
         Mage::log("categories filters: ".$this->categories);
         $this->categories = explode(',',$this->categories);
@@ -63,7 +83,7 @@ class Otimizar_FacebookProducts_Model_Cron {
                     $_productCollection->addAttributeToFilter('entity_id', array('nin' => $products));
                 }
 
-                if(!empty($this->json_custom_filter) && is_array($this->son_custom_filter)){
+                if(!empty($this->json_custom_filter) && is_array($this->json_custom_filter)){
                     foreach($this->json_custom_filter as $k => $v){
                         $_productCollection->addAttributeToFilter($k, $v);
                     }
@@ -81,7 +101,6 @@ class Otimizar_FacebookProducts_Model_Cron {
                     'inner')
                 ;
 
-
                 $_productCollection->getSelect()->limit($this->collectionLimit);
 
                 $_productCollection->load();
@@ -89,10 +108,10 @@ class Otimizar_FacebookProducts_Model_Cron {
                 Mage::app()->setCurrentStore(Mage_Core_Model_App::DISTRO_STORE_ID);
                 
                 foreach($_productCollection as $p){
-                    $pEntityId = $p->getData('entity_id');
-                    if(!array_key_exists($pEntityId,$products))
+                    $sku = $p->getData('sku');
+                    if(!array_key_exists($sku,$this->products))
                     {
-                        $products[$pEntityId] = $pEntityId;
+                        $this->products[$sku] = $sku;
 
                         if ($this->checkIfIsAvailable) {
                             if ($p->isAvailable()) {
@@ -114,7 +133,7 @@ class Otimizar_FacebookProducts_Model_Cron {
         Mage::log("count repetidos ".$countRepetidos);
         $this->_putContent($this->xmlFooter);
 
-
+        rename($this->path . $this->_fileName ,$this->path . $feed['filter_filename']);
     }
 
     private function _putContent($string,$flag = FILE_APPEND)
@@ -225,9 +244,6 @@ class Otimizar_FacebookProducts_Model_Cron {
                 }
             }
         }
-
         return $content;
     }
-
-
 }
