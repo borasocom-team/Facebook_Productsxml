@@ -14,6 +14,7 @@ class Otimizar_FacebookProducts_Model_Cron {
         $products,
         $check_isinstock,
         $only_configurable_products,
+        $only_if_image_exists,
         $ucfirst;
 
     public function __construct(){
@@ -28,8 +29,8 @@ class Otimizar_FacebookProducts_Model_Cron {
         $this->htmlentities       = (int)Mage::getStoreConfig('facebookProducts/filters/htmlentities');
         $this->json_custom_filter = json_decode(Mage::getStoreConfig('facebookProducts/filters/json_custom_filter'));
         $this->check_isinstock    = (int)Mage::getStoreConfig('facebookProducts/filters/check_isinstock');
-        $this->only_configurable_products    = (int)Mage::getStoreConfig('facebookProducts/filters/only_configurable_products');
-
+        $this->only_configurable_products = (int)Mage::getStoreConfig('facebookProducts/filters/only_configurable_products');
+        $this->only_if_image_exists       = (int)Mage::getStoreConfig('facebookProducts/filters/only_if_image_exists');
 
         $this->xmlGeneration = Mage::helper('facebookProducts/installments')->makeArrayFieldValue(Mage::getStoreConfig('facebookProducts/xml/generation'));
 
@@ -121,6 +122,14 @@ class Otimizar_FacebookProducts_Model_Cron {
                     $sku = $p->getData('sku');
                     if(!array_key_exists($sku,$this->products))
                     {
+                        if($this->only_if_image_exists){
+                            $productImage = Mage::getBaseDir('media').'/catalog/product' . $p->getImage();
+                            if(!file_exists($productImage)){
+                                continue;
+                            }
+                            unset($productImage);
+                        }
+
                         $this->products[$sku] = $sku;
 
                         if ($this->checkIfIsAvailable) {
