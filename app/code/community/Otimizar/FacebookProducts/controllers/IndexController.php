@@ -1,6 +1,6 @@
 <?php
 
-class Otimizar_FacebookProducts_XmlController extends Mage_Core_Controller_Front_Action {
+class Otimizar_FacebookProducts_IndexController extends Mage_Core_Controller_Front_Action {
     private $_fileName;
     public function indexAction() {
         $this->_fileName = Mage::getStoreConfig('otimizar_facebookProducts/export/filename');
@@ -14,5 +14,10 @@ class Otimizar_FacebookProducts_XmlController extends Mage_Core_Controller_Front
             echo 'File "'.$this->_fileName.'" not exists';
         }
         die;
+    }
+
+    public function generateAction(){
+        $response = Mage::getModel('facebookProducts/cron');
+        $response->run();
     }
 }

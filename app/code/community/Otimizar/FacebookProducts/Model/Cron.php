@@ -15,7 +15,9 @@ class Otimizar_FacebookProducts_Model_Cron {
         $check_isinstock,
         $only_configurable_products,
         $only_if_image_exists,
-        $ucfirst;
+        $ucfirst,
+        $countProducts,
+        $countRepetidos;
 
     public function __construct(){
         $this->path               = Mage::getBaseDir().DIRECTORY_SEPARATOR.'media'.DIRECTORY_SEPARATOR;
@@ -33,7 +35,7 @@ class Otimizar_FacebookProducts_Model_Cron {
         $this->only_if_image_exists       = (int)Mage::getStoreConfig('facebookProducts/filters/only_if_image_exists');
 
         $this->xmlGeneration = Mage::helper('facebookProducts/installments')->makeArrayFieldValue(Mage::getStoreConfig('facebookProducts/xml/generation'));
-
+        $this->use_category_children = (int)Mage::getStoreConfig('facebookProducts/filters/use_category_children');
     }
 
     public function run()
@@ -52,8 +54,8 @@ class Otimizar_FacebookProducts_Model_Cron {
 
     private function generateFeeds($feed)
     {
-        $countProducts = 0;
-        $countRepetidos = 0;
+        $this->countProducts  = 0;
+        $this->countRepetidos = 0;
         $this->products = array();
         $this->collectionLimit = $feed['filter_limit']?(int)$feed['filter_limit']:100000;
         $this->_fileName .= '.tmp';
@@ -78,81 +80,95 @@ class Otimizar_FacebookProducts_Model_Cron {
             $store = Mage::getModel('core/store')->load($store_id);
 
             foreach($categoryIds as $catId) {
-                $_rootcatID = $catId;
 
-                $_productCollection = Mage::getResourceModel('catalog/product_collection')
-                    ->joinField('category_id','catalog/category_product','category_id','product_id=entity_id',null,'left')
-                    ->addAttributeToFilter('category_id', array('in' => $_rootcatID))
-                    ->addAttributeToSelect('*');
-
-                //not repeat products
-                if(!empty($products)) {
-                    $_productCollection->addAttributeToFilter('entity_id', array('nin' => $products));
-                }
-
-                if(!empty($this->json_custom_filter) && is_array($this->json_custom_filter)){
-                    foreach($this->json_custom_filter as $k => $v){
-                        $_productCollection->addAttributeToFilter($k, $v);
+                if($this->use_category_children){
+                    $this->_productWrite($catId);
+                    $children = Mage::getModel('catalog/category')->getCategories($catId);
+                    foreach ($children as $category) {
+                        $catId = $category->getId();
+                        $this->_productWrite($catId);
                     }
-                }
-
-                $_productCollection->addAttributeToFilter('status', 1)
-                    ->addAttributeToFilter('visibility', 4);
-
-                if($this->only_configurable_products){
-                    $_productCollection->addAttributeToFilter('type_id', 'configurable');
-                }
-
-                if($this->check_isinstock) {
-                    $_productCollection->joinField('qty',
-                        'cataloginventory/stock_item',
-                        'qty',
-                        'product_id=entity_id',
-                        '{{table}}.is_in_stock=1',
-                        'inner');
-                }
-
-                $_productCollection->getSelect()->limit($this->collectionLimit);
-
-                $_productCollection->load();
-                
-                Mage::app()->setCurrentStore(Mage_Core_Model_App::DISTRO_STORE_ID);
-                
-                foreach($_productCollection as $p){
-                    $sku = $p->getData('sku');
-                    if(!array_key_exists($sku,$this->products))
-                    {
-                        if($this->only_if_image_exists){
-                            $productImage = Mage::getBaseDir('media').'/catalog/product' . $p->getImage();
-                            if(!file_exists($productImage)){
-                                continue;
-                            }
-                            unset($productImage);
-                        }
-
-                        $this->products[$sku] = $sku;
-
-                        if ($this->checkIfIsAvailable) {
-                            if ($p->isAvailable()) {
-                                $content = $this->setVars($this->xmlContent, $p);
-                                $this->_putContent($content);
-                            }
-                        } else {
-                            $content = $this->setVars($this->xmlContent, $p);
-                            $this->_putContent($content);
-                        }
-                        $countProducts++;
-                    }else{
-                        $countRepetidos++;
-                    }
+                }else{
+                    $this->_productWrite($catId);
                 }
             }
         }
-        Mage::log("count products ".$countProducts);
-        Mage::log("count repetidos ".$countRepetidos);
+        Mage::log("count products ".$this->countProducts);
+        Mage::log("count repetidos ".$this->countRepetidos);
         $this->_putContent($this->xmlFooter);
 
         rename($this->path . $this->_fileName ,$this->path . $feed['filter_filename']);
+    }
+
+    private function _productWrite($catId){
+
+
+        $_productCollection = Mage::getResourceModel('catalog/product_collection')
+            ->joinField('category_id','catalog/category_product','category_id','product_id=entity_id',null,'left')
+            ->addAttributeToFilter('category_id', array('in' => $catId))
+            ->addAttributeToSelect('*');
+
+        //not repeat products
+        if(!empty($this->products)) {
+            $_productCollection->addAttributeToFilter('entity_id', array('nin' => $this->products));
+        }
+
+        if(!empty($this->json_custom_filter) && is_array($this->json_custom_filter)){
+            foreach($this->json_custom_filter as $k => $v){
+                $_productCollection->addAttributeToFilter($k, $v);
+            }
+        }
+
+        $_productCollection->addAttributeToFilter('status', 1);
+        $_productCollection->addAttributeToFilter('visibility', 4);
+
+        if($this->only_configurable_products){
+            $_productCollection->addAttributeToFilter('type_id', 'configurable');
+        }
+
+        if($this->check_isinstock) {
+            $_productCollection->joinField('qty',
+                'cataloginventory/stock_item',
+                'qty',
+                'product_id=entity_id',
+                '{{table}}.is_in_stock=1',
+                'inner');
+        }
+
+        $_productCollection->getSelect()->limit($this->collectionLimit);
+
+        $_productCollection->load();
+
+        Mage::app()->setCurrentStore(Mage_Core_Model_App::DISTRO_STORE_ID);
+
+        foreach($_productCollection as $p){
+            $sku = $p->getData('sku');
+            if(!array_key_exists($sku,$this->products))
+            {
+                if($this->only_if_image_exists){
+                    $productImage = Mage::getBaseDir('media').'/catalog/product' . $p->getImage();
+                    if(!file_exists($productImage)){
+                        continue;
+                    }
+                    unset($productImage);
+                }
+
+                $this->products[$sku] = $sku;
+
+                if ($this->checkIfIsAvailable) {
+                    if ($p->isAvailable()) {
+                        $content = $this->setVars($this->xmlContent, $p);
+                        $this->_putContent($content);
+                    }
+                } else {
+                    $content = $this->setVars($this->xmlContent, $p);
+                    $this->_putContent($content);
+                }
+                $this->countProducts++;
+            }else{
+                $this->countRepetidos++;
+            }
+        }
     }
 
     private function _putContent($string,$flag = FILE_APPEND)
@@ -197,11 +213,22 @@ class Otimizar_FacebookProducts_Model_Cron {
                                 case 'price':
                                     $value = $dataObject->getData($props[0]);
                                     $value = number_format((double)$value, 2, '.', '');
+                                    $value .= ' '.strtoupper(Mage::app()->getStore()->getCurrentCurrencyCode());
                                     break;
                                 case 'specialPrice':
                                     $value = $dataObject->getData($props[0]);
                                     if($value <= 0 ){$value = $dataObject->getData("price");}
                                     $value = number_format((double)$value, 2, '.', '');
+                                    $value .= ' '.strtoupper(Mage::app()->getStore()->getCurrentCurrencyCode());
+                                    break;
+                                case 'productColors':
+                                    $value = $this->productColors($dataObject);
+                                    break;
+                                case 'productSizes':
+                                    $value = $this->productSizes($dataObject);
+                                    break;
+                                case 'categorySubcategory':
+                                    $value = $this->categorySubcategory($dataObject);
                                     break;
                                 default:
                                     $value = $dataObject->getData($props[0]);
@@ -251,7 +278,7 @@ class Otimizar_FacebookProducts_Model_Cron {
                                 $value = htmlentities($value);
                             }
 
-                            if($this->ucfirst) {
+                            if($this->ucfirst && ($props[0]!='price' && $props[0]!='specialPrice')) {
                                 $value = ucfirst(strtolower($value));
                             }
 
@@ -266,5 +293,55 @@ class Otimizar_FacebookProducts_Model_Cron {
             }
         }
         return $content;
+    }
+
+    public function productColors($_product){
+        $productAttributeOptions = $_product->getTypeInstance(TRUE)->getConfigurableAttributesAsArray($_product);
+        $swatches = array();
+
+        foreach( $productAttributeOptions as $productAttribute ){
+            if( $productAttribute['attribute_code'] == 'color' ){
+                foreach( $productAttribute['values'] as $attribute ){
+                    $swatches[] = $attribute['label'];
+                }
+            }
+        }
+
+        $response = implode("/",$swatches);
+        return $response;
+    }
+
+    public function productSizes($_product){
+        $productAttributeOptions = $_product->getTypeInstance(TRUE)->getConfigurableAttributesAsArray($_product);
+        $swatches = array();
+
+        foreach( $productAttributeOptions as $productAttribute ){
+            if( $productAttribute['attribute_code'] == 'size'
+                || $productAttribute['attribute_code'] == 'size_roupa'
+                || $productAttribute['attribute_code'] == 'size_calcado'){
+                foreach( $productAttribute['values'] as $attribute ){
+                    $swatches[] = $attribute['label'];
+                }
+            }
+        }
+
+        $response = implode("/",$swatches);
+        return $response;
+
+    }
+
+    public function categorySubcategory($_product){
+
+        $response = array();
+
+        foreach ($_product->getCategoryCollection() as $category) {
+
+            $cat = Mage::getModel('catalog/category')->load($category->getId());
+            $response[] = $cat->getName();
+
+        }
+        $response = implode(" > ",$response);
+        return $response;
+
     }
 }

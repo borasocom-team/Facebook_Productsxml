@@ -24,20 +24,20 @@
     </global>
     <frontend>
         <routers>
-            <facebookProducts>
+            <facebookproducts>
                 <use>standard</use>
                 <args>
-                    <module>otimizar_FacebookProducts</module>
+                    <module>Otimizar_FacebookProducts</module>
                     <frontName>facebookproducts</frontName>
                 </args>
-            </facebookProducts>
+            </facebookproducts>
         </routers>
     </frontend>
 
     <crontab>
         <jobs>
             <otimizar_facebook_products_feed>
-                <schedule><cron_expr>15 2 * * *</cron_expr></schedule>
+                <schedule><cron_expr>15 4/* * * *</cron_expr></schedule>
                 <run>
                     <model>facebookProducts/Cron::run</model>
                 </run>
