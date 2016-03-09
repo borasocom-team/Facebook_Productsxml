@@ -1,5 +1,5 @@
 {
-   "name": "otimizar/facebook_productsxml",
+   "name": "borasocom-team/facebook_productsxml",
    "type":"magento-module",
    "require": {
      "php": ">=5.3",
