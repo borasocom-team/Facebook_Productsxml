@@ -68,8 +68,8 @@
                 <g:image_link>{{var:imageCacheUrl}}</g:image_link>
                 <g:condition>new</g:condition>
                 <g:availability>in stock</g:availability>
-                <g:price>{{var:price}} BRL</g:price>
-                <g:sale_price>{{var:specialPrice}} BRL</g:sale_price>
+                <g:price>{{var:price}}</g:price>
+                <g:sale_price>{{var:specialPrice}}</g:sale_price>
 
                 <g:google_product_category>
                     Apparel &amp; Accessories &gt; Clothing
