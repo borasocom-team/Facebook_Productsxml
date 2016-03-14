@@ -295,40 +295,51 @@ class Otimizar_FacebookProducts_Model_Cron {
         return $content;
     }
 
-    public function productColors($_product){
-        $productAttributeOptions = $_product->getTypeInstance(TRUE)->getConfigurableAttributesAsArray($_product);
-        $swatches = array();
+	public function productColors($_product){
+		$parentIds = Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild($_product->getId());
 
-        foreach( $productAttributeOptions as $productAttribute ){
-            if( $productAttribute['attribute_code'] == 'color' ){
-                foreach( $productAttribute['values'] as $attribute ){
-                    $swatches[] = $attribute['label'];
-                }
-            }
-        }
+		if($_product->getTypeId() == 'simple' && empty($parentIds)) {
+			return null;
+		}
 
-        $response = implode("/",$swatches);
-        return $response;
-    }
+		$productAttributeOptions = $_product->getTypeInstance(TRUE)->getConfigurableAttributesAsArray($_product);
+		$swatches = array();
 
-    public function productSizes($_product){
-        $productAttributeOptions = $_product->getTypeInstance(TRUE)->getConfigurableAttributesAsArray($_product);
-        $swatches = array();
+		foreach( $productAttributeOptions as $productAttribute ){
+			if( $productAttribute['attribute_code'] == 'color' ){
+				foreach( $productAttribute['values'] as $attribute ){
+					$swatches[] = $attribute['label'];
+				}
+			}
+		}
 
-        foreach( $productAttributeOptions as $productAttribute ){
-            if( $productAttribute['attribute_code'] == 'size'
-                || $productAttribute['attribute_code'] == 'size_roupa'
-                || $productAttribute['attribute_code'] == 'size_calcado'){
-                foreach( $productAttribute['values'] as $attribute ){
-                    $swatches[] = $attribute['label'];
-                }
-            }
-        }
+		$response = implode("/",$swatches);
+		return $response;
+	}
 
-        $response = implode("/",$swatches);
-        return $response;
+	public function productSizes($_product){
+		$parentIds = Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild($_product->getId());
 
-    }
+		if($_product->getTypeId() == 'simple' && empty($parentIds)) {
+			return null;
+		}
+		$productAttributeOptions = $_product->getTypeInstance(TRUE)->getConfigurableAttributesAsArray($_product);
+		$swatches = array();
+
+		foreach( $productAttributeOptions as $productAttribute ){
+			if( $productAttribute['attribute_code'] == 'size'
+			    || $productAttribute['attribute_code'] == 'size_roupa'
+			    || $productAttribute['attribute_code'] == 'size_calcado'){
+				foreach( $productAttribute['values'] as $attribute ){
+					$swatches[] = $attribute['label'];
+				}
+			}
+		}
+
+		$response = implode("/",$swatches);
+		return $response;
+
+	}
 
     public function categorySubcategory($_product){
 
