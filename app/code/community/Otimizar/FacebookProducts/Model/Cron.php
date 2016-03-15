@@ -206,7 +206,8 @@ class Otimizar_FacebookProducts_Model_Cron {
                         try {
                             switch($props[0]){
                                 case 'imageUrl':
-                                    $value = 'media/catalog/product' . $dataObject->getImage();
+                                    //$value = 'media/catalog/product' . $dataObject->getImage();
+                                    $value = Mage::getModel('catalog/product_media_config')->getMediaUrl( $dataObject->getImage() );
                                     break;
                                 case 'imageCacheUrl':
                                     $value = Mage::helper('catalog/image')->init($dataObject, 'image')->resize(600,300);
