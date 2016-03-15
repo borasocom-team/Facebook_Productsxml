@@ -40,6 +40,10 @@ class Otimizar_FacebookProducts_Model_Cron {
 
     public function run()
     {
+        if(Mage::helper('facebookProducts')->isDebugModeOn()) {
+            Mage::helper('facebookProducts')->emptyLogFile();
+        }
+
         if(!Mage::getStoreConfig("facebookProducts/general/enable")){
             return;
         }
@@ -104,9 +108,9 @@ class Otimizar_FacebookProducts_Model_Cron {
 
 
         $_productCollection = Mage::getResourceModel('catalog/product_collection')
-            ->joinField('category_id','catalog/category_product','category_id','product_id=entity_id',null,'left')
-            ->addAttributeToFilter('category_id', array('in' => $catId))
-            ->addAttributeToSelect('*');
+                                  ->joinField('category_id','catalog/category_product','category_id','product_id=entity_id',null,'left')
+                                  ->addAttributeToFilter('category_id', array('in' => $catId))
+                                  ->addAttributeToSelect('*');
 
         //not repeat products
         if(!empty($this->products)) {
@@ -234,6 +238,10 @@ class Otimizar_FacebookProducts_Model_Cron {
                                     $value = $dataObject->getData($props[0]);
                             }
 
+                            if(Mage::helper('facebookProducts')->isDebugModeOn()) {
+                                Mage::helper('facebookProducts')->writeLogFile($value);
+                            }
+
                             if ($props_count > 1) {
 
                                 for($i = 1; $i < $props_count; $i ++) {
@@ -295,51 +303,51 @@ class Otimizar_FacebookProducts_Model_Cron {
         return $content;
     }
 
-	public function productColors($_product){
-		$parentIds = Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild($_product->getId());
+    public function productColors($_product){
+        $parentIds = Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild($_product->getId());
 
-		if($_product->getTypeId() == 'simple' && empty($parentIds)) {
-			return null;
-		}
+        if($_product->getTypeId() == 'simple' && empty($parentIds)) {
+            return null;
+        }
 
-		$productAttributeOptions = $_product->getTypeInstance(TRUE)->getConfigurableAttributesAsArray($_product);
-		$swatches = array();
+        $productAttributeOptions = $_product->getTypeInstance(TRUE)->getConfigurableAttributesAsArray($_product);
+        $swatches = array();
 
-		foreach( $productAttributeOptions as $productAttribute ){
-			if( $productAttribute['attribute_code'] == 'color' ){
-				foreach( $productAttribute['values'] as $attribute ){
-					$swatches[] = $attribute['label'];
-				}
-			}
-		}
+        foreach( $productAttributeOptions as $productAttribute ){
+            if( $productAttribute['attribute_code'] == 'color' ){
+                foreach( $productAttribute['values'] as $attribute ){
+                    $swatches[] = $attribute['label'];
+                }
+            }
+        }
 
-		$response = implode("/",$swatches);
-		return $response;
-	}
+        $response = implode("/",$swatches);
+        return $response;
+    }
 
-	public function productSizes($_product){
-		$parentIds = Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild($_product->getId());
+    public function productSizes($_product){
+        $parentIds = Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild($_product->getId());
 
-		if($_product->getTypeId() == 'simple' && empty($parentIds)) {
-			return null;
-		}
-		$productAttributeOptions = $_product->getTypeInstance(TRUE)->getConfigurableAttributesAsArray($_product);
-		$swatches = array();
+        if($_product->getTypeId() == 'simple' && empty($parentIds)) {
+            return null;
+        }
+        $productAttributeOptions = $_product->getTypeInstance(TRUE)->getConfigurableAttributesAsArray($_product);
+        $swatches = array();
 
-		foreach( $productAttributeOptions as $productAttribute ){
-			if( $productAttribute['attribute_code'] == 'size'
-			    || $productAttribute['attribute_code'] == 'size_roupa'
-			    || $productAttribute['attribute_code'] == 'size_calcado'){
-				foreach( $productAttribute['values'] as $attribute ){
-					$swatches[] = $attribute['label'];
-				}
-			}
-		}
+        foreach( $productAttributeOptions as $productAttribute ){
+            if( $productAttribute['attribute_code'] == 'size'
+                || $productAttribute['attribute_code'] == 'size_roupa'
+                || $productAttribute['attribute_code'] == 'size_calcado'){
+                foreach( $productAttribute['values'] as $attribute ){
+                    $swatches[] = $attribute['label'];
+                }
+            }
+        }
 
-		$response = implode("/",$swatches);
-		return $response;
+        $response = implode("/",$swatches);
+        return $response;
 
-	}
+    }
 
     public function categorySubcategory($_product){
 
