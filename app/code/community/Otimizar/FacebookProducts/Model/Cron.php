@@ -68,13 +68,13 @@ class Otimizar_FacebookProducts_Model_Cron {
 
         $this->categories = $feed['filter_categories'];
 
-        Mage::log("categories filters: ".$this->categories);
+        Mage::helper('facebookProducts')->writeMessagesFile("categories filters: ".$this->categories);
         $this->categories = explode(',',$this->categories);
 
         if(is_array($this->categories)){
             $categoryIds = $this->categories;
         }else{
-            Mage::log("invalid configuration for categories filter");
+            Mage::helper('facebookProducts')->writeMessagesFile("invalid configuration for categories filter");
             return;
         }
         $allStores = Mage::app()->getStores();
@@ -97,8 +97,8 @@ class Otimizar_FacebookProducts_Model_Cron {
                 }
             }
         }
-        Mage::log("count products ".$this->countProducts);
-        Mage::log("count repetidos ".$this->countRepetidos);
+        Mage::helper('facebookProducts')->writeMessagesFile("count products ".$this->countProducts);
+        Mage::helper('facebookProducts')->writeMessagesFile("count repetidos ".$this->countRepetidos);
         $this->_putContent($this->xmlFooter);
 
         rename($this->path . $this->_fileName ,$this->path . $feed['filter_filename']);
