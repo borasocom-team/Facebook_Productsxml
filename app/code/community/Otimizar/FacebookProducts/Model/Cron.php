@@ -146,6 +146,12 @@ class Otimizar_FacebookProducts_Model_Cron {
         Mage::app()->setCurrentStore(Mage_Core_Model_App::DISTRO_STORE_ID);
 
         foreach($_productCollection as $p){
+
+	        if(Mage::helper('facebookProducts')->isDebugModeOn()) {
+		        Mage::helper('facebookProducts')->writeLogFile('------->Product Object: ');
+		        Mage::helper('facebookProducts')->writeLogFile($p);
+	        }
+
             $sku = $p->getData('sku');
             if(!array_key_exists($sku,$this->products))
             {
@@ -240,6 +246,7 @@ class Otimizar_FacebookProducts_Model_Cron {
                             }
 
                             if(Mage::helper('facebookProducts')->isDebugModeOn()) {
+                                Mage::helper('facebookProducts')->writeLogFile('------->' . $props[0] . ': ');
                                 Mage::helper('facebookProducts')->writeLogFile($value);
                             }
 
