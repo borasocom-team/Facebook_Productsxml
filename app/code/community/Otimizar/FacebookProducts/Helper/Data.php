@@ -22,9 +22,7 @@ class Otimizar_FacebookProducts_Helper_Data extends Mage_Core_Helper_Abstract {
 	public function emptyLogFile() {
 		$fileObject = new Varien_Io_File();
 		if($fileObject->fileExists($this->getLogFileFullPath())) {
-			if($fileObject->isWriteable($this->getLogFileFullPath())) {
-				$fileObject->rm($this->getLogFileFullPath());
-			}
+			$fileObject->rm($this->getLogFileFullPath());
 		}
 	}
 
