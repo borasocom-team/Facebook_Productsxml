@@ -316,7 +316,7 @@ class Otimizar_FacebookProducts_Model_Cron {
         $parentIds = Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild($_product->getId());
 
         if($_product->getTypeId() == 'simple' && empty($parentIds)) {
-            return null;
+            return '';
         }
 
         $productAttributeOptions = $_product->getTypeInstance(TRUE)->getConfigurableAttributesAsArray($_product);
@@ -338,7 +338,7 @@ class Otimizar_FacebookProducts_Model_Cron {
         $parentIds = Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild($_product->getId());
 
         if($_product->getTypeId() == 'simple' && empty($parentIds)) {
-            return null;
+            return '';
         }
         $productAttributeOptions = $_product->getTypeInstance(TRUE)->getConfigurableAttributesAsArray($_product);
         $swatches = array();
