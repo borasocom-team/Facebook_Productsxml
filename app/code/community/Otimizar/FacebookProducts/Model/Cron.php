@@ -240,6 +240,7 @@ class Otimizar_FacebookProducts_Model_Cron {
                                     break;
                                 case 'categorySubcategory':
                                     $value = $this->categorySubcategory($dataObject);
+                                    $value = str_replace('Default Category > ','',$value);
                                     break;
                                 default:
                                     $value = $dataObject->getData($props[0]);
