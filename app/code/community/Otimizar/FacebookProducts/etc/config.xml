@@ -21,6 +21,14 @@
                 <class>Otimizar_FacebookProducts_Helper</class>
             </facebookProducts>
         </helpers>
+        <resources>
+            <otimizar_facebookproducts_setup>
+                <setup>
+                    <module>Otimizar_FacebookProducts</module>
+                    <class>Mage_Eav_Model_Entity_Setup</class>
+                </setup>
+            </otimizar_facebookproducts_setup>
+        </resources>
     </global>
     <frontend>
         <routers>
