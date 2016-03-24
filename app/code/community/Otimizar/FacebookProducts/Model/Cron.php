@@ -363,36 +363,59 @@ class Otimizar_FacebookProducts_Model_Cron {
 
     }
 
-    public function categorySubcategory($_product){
-
-        $response = array();
-
-        foreach ($_product->getCategoryCollection() as $category) {
-
-            $cat = Mage::getModel('catalog/category')->load($category->getId());
-            $response[] = $cat->getName();
-
-        }
-        $response = implode(" > ",$response);
-        return $response;
-
-    }
-
-	public function getGoogleCategory($_product){
-
-		$response = false;
+	public function categorySubcategory($_product) {
+		$level = 1;
+		$deepestId = false;
+		$categories = array();
+		$response = array();
 
 		foreach ($_product->getCategoryCollection() as $category) {
-
-			$cat = Mage::getModel('catalog/category')->load($category->getId());
-			$googleCategory = $cat->getGoogleCategory();
-			if(!empty($googleCategory)) {
-				$response = $googleCategory;
+			$category = Mage::getModel('catalog/category')->load($category->getId());
+			$path = $category->getPathIds();
+			array_shift($path);
+			$categories[$category->getId()] = array(
+				'name' => $category->getName(),
+				'path' => $path
+			);
+			if((int)$category->getLevel() > $level) {
+				$deepestId = $category->getId();
+				$level = (int)$category->getLevel();
 			}
-
 		}
-		//$response = implode(" > ",$response);
+
+		if(!$deepestId) {
+			return false;
+		}
+
+		foreach($categories[$deepestId]['path'] as $id) {
+			array_push($response, $categories[$id]['name']);
+		}
+
+		$response = implode(" > ",$response);
 		return $response;
 
+	}
+
+	public function getGoogleCategory($_product){
+		$level = 1;
+		$deepestId = false;
+		$categories = array();
+
+		foreach ($_product->getCategoryCollection() as $category) {
+			$category = Mage::getModel('catalog/category')->load($category->getId());
+			$categories[$category->getId()] = array(
+				'googleCategoryName' => $category->getGoogleCategory()
+			);
+			if((int)$category->getLevel() > $level) {
+				$deepestId = $category->getId();
+				$level = (int)$category->getLevel();
+			}
+		}
+
+		if(!$deepestId) {
+			return false;
+		}
+
+		return $categories[$deepestId]['googleCategoryName'];
 	}
 }
