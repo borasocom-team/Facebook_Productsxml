@@ -371,15 +371,17 @@ class Otimizar_FacebookProducts_Model_Cron {
 
 		foreach ($_product->getCategoryCollection() as $category) {
 			$category = Mage::getModel('catalog/category')->load($category->getId());
-			$path = $category->getPathIds();
-			array_shift($path);
-			$categories[$category->getId()] = array(
-				'name' => $category->getName(),
-				'path' => $path
-			);
-			if((int)$category->getLevel() > $level) {
-				$deepestId = $category->getId();
-				$level = (int)$category->getLevel();
+			if($category->getIsActive()) {
+				$path = $category->getPathIds();
+				array_shift($path);
+				$categories[$category->getId()] = array(
+					'name' => $category->getName(),
+					'path' => $path
+				);
+				if((int)$category->getLevel() > $level) {
+					$deepestId = $category->getId();
+					$level = (int)$category->getLevel();
+				}
 			}
 		}
 
@@ -403,12 +405,14 @@ class Otimizar_FacebookProducts_Model_Cron {
 
 		foreach ($_product->getCategoryCollection() as $category) {
 			$category = Mage::getModel('catalog/category')->load($category->getId());
-			$categories[$category->getId()] = array(
-				'googleCategoryName' => $category->getGoogleCategory()
-			);
-			if((int)$category->getLevel() > $level) {
-				$deepestId = $category->getId();
-				$level = (int)$category->getLevel();
+			if($category->getIsActive()) {
+				$categories[$category->getId()] = array(
+					'googleCategoryName' => $category->getGoogleCategory()
+				);
+				if((int)$category->getLevel() > $level) {
+					$deepestId = $category->getId();
+					$level = (int)$category->getLevel();
+				}
 			}
 		}
 
@@ -416,6 +420,11 @@ class Otimizar_FacebookProducts_Model_Cron {
 			return false;
 		}
 
-		return $categories[$deepestId]['googleCategoryName'];
+		$googleCategory = $categories[$deepestId]['googleCategoryName'];
+		if(!empty($googleCategory)) {
+			return $googleCategory;
+		}
+
+		return false;
 	}
 }
