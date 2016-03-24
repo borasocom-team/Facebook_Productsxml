@@ -407,7 +407,7 @@ class Otimizar_FacebookProducts_Model_Cron {
 			$category = Mage::getModel('catalog/category')->load($category->getId());
 			if($category->getIsActive()) {
 				$categories[$category->getId()] = array(
-					'googleCategoryName' => $category->getGoogleCategory()
+					'googleCategoryName' => $category->getGoogleCategoryFb()
 				);
 				if((int)$category->getLevel() > $level) {
 					$deepestId = $category->getId();
