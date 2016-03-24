@@ -242,6 +242,9 @@ class Otimizar_FacebookProducts_Model_Cron {
                                     $value = $this->categorySubcategory($dataObject);
                                     $value = str_replace('Default Category > ','',$value);
                                     break;
+                                case 'googleCategory':
+                                    $value = $this->getGoogleCategory($dataObject);
+                                    break;
                                 default:
                                     $value = $dataObject->getData($props[0]);
                             }
@@ -299,7 +302,9 @@ class Otimizar_FacebookProducts_Model_Cron {
                                 $value = ucfirst(strtolower($value));
                             }
 
-                            $value = '<![CDATA['.$value.']]>';
+	                        if(!empty($value)) {
+		                        $value = '<![CDATA['.$value.']]>';
+	                        }
 
                             $content = str_replace($match[0][$var_num], strval($value), $content);
 
@@ -372,4 +377,22 @@ class Otimizar_FacebookProducts_Model_Cron {
         return $response;
 
     }
+
+	public function getGoogleCategory($_product){
+
+		$response = false;
+
+		foreach ($_product->getCategoryCollection() as $category) {
+
+			$cat = Mage::getModel('catalog/category')->load($category->getId());
+			$googleCategory = $cat->getGoogleCategory();
+			if(!empty($googleCategory)) {
+				$response = $googleCategory;
+			}
+
+		}
+		//$response = implode(" > ",$response);
+		return $response;
+
+	}
 }
